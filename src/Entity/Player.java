@@ -11,11 +11,16 @@ import java.io.IOException;
 public class Player extends Entity{
     GamePanel gp;
     KeyHandler keyH;
-
+    public final int screenX;
+    public final int screenY;
     public Player(GamePanel gp, KeyHandler keyH)
     {
         this.gp = gp;
         this.keyH = keyH;
+
+        screenX = gp.screenWidth/2;
+        screenY = gp.screenHeight/2;
+        hitbox = new Rectangle(8, 16, 32,32);
         setDefaultValues();
         getPlayerImage();
         direction = "down";
@@ -23,8 +28,8 @@ public class Player extends Entity{
 
     public void setDefaultValues()
     {
-        x = 100;
-        y = 100;
+        worldX = gp.tileSize * 23 - (gp.tileSize/2);
+        worldY = gp.tileSize * 21 - (gp.tileSize/2);
         speed = 4;
     }
     public void getPlayerImage()
@@ -48,23 +53,43 @@ public class Player extends Entity{
             if(keyH.upPressed)
             {
                 direction = "up";
-                y -= speed;
             }
             if(keyH.downPressed)
             {
                 direction = "down";
-                y += speed;
             }
             if(keyH.leftPressed)
             {
                 direction = "left";
-                x -= speed;
             }
             if(keyH.rightPressed)
             {
                 direction = "right";
-                x += speed;
             }
+
+            // CHECK TILE COLLISION
+            collisionOn = false;
+            gp.cChecker.checkTile(this);
+            // IF COLLISION IS FLASE, PLAYER CAN MOVE
+            if (!collisionOn)
+            {
+                switch(direction)
+                {
+                    case "up":
+                        worldY -= speed;
+                        break;
+                    case "down":
+                        worldY += speed;
+                        break;
+                    case "left":
+                        worldX -= speed;
+                        break;
+                    case "right":
+                        worldX += speed;
+                        break;
+                }
+            }
+
 
             spriteCounter++;
             if(spriteCounter > 12){
@@ -106,7 +131,7 @@ public class Player extends Entity{
                 image = left;
                 break;
         }
-        g2.drawImage(image, x, y, gp.tileSize, gp.tileSize, null);
+        g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
     }
 
 }
