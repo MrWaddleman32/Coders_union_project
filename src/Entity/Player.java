@@ -2,21 +2,26 @@ package Entity;
 
 import Main.GamePanel;
 import Main.KeyHandler;
+import Main.UtilityTool;
+import Objects.OBJ_Snowball;
+import jdk.jshell.execution.Util;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.Graphics2D;
 import java.io.IOException;
 
 public class Player extends Entity{
-    GamePanel gp;
+    Graphics2D snowball;
     KeyHandler keyH;
     public final int screenX;
     public final int screenY;
-    int numOfKeys = 0;
+    public int numOfKeys = 0;
+    public int numOfScrolls = 0;
     public Player(GamePanel gp, KeyHandler keyH)
     {
-        this.gp = gp;
+        super(gp);
         this.keyH = keyH;
 
         screenX = gp.screenWidth/2;
@@ -26,8 +31,8 @@ public class Player extends Entity{
         hitbox.y = 16;
         hitboxDefaultX = hitbox.x;
         hitboxDefaultY = hitbox.y;
-        hitbox.width = 32;
-        hitbox.height = 32;
+        hitbox.width = 24;
+        hitbox.height = 24;
         setDefaultValues();
         getPlayerImage();
         direction = "down";
@@ -37,21 +42,38 @@ public class Player extends Entity{
     {
         worldX = gp.tileSize * 23 - (gp.tileSize/2);
         worldY = gp.tileSize * 21 - (gp.tileSize/2);
-        speed = 4;
+        speed = 9;
+        strength = 1;
+        dexterity = 1;
+        exp = 0;
+        nextLevelExp = 0;
+        coin = 0;
+        projectile = new OBJ_Snowball(gp);
     }
     public void getPlayerImage()
     {
-        try {
-            up1 = ImageIO.read(getClass().getResourceAsStream("/player/up_1.png"));
-            up2 = ImageIO.read(getClass().getResourceAsStream("/player/up_2.png"));
-            down1 = ImageIO.read(getClass().getResourceAsStream("/player/down_1.png"));
-            down2 = ImageIO.read(getClass().getResourceAsStream("/player/down_2.png"));
-            right = ImageIO.read(getClass().getResourceAsStream("/player/right.png"));
-            left = ImageIO.read(getClass().getResourceAsStream("/player/left.png"));
+        up1 = setup("up_1");
+        up2 = setup("up_2");
+        down1 = setup("down_1");
+        down2 = setup("down_2");
+        right = setup("Right");
+        left = setup("Left");
+    }
 
-        }catch (IOException e){
+    public BufferedImage setup(String imageName)
+    {
+        UtilityTool uTool = new UtilityTool();
+        BufferedImage image = null;
+
+        try
+        {
+            image = ImageIO.read(getClass().getResourceAsStream("/player/" + imageName + ".png"));
+            image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
+        }
+        catch(IOException e){
             e.printStackTrace();
         }
+        return image;
     }
     public void update()
     {
@@ -115,6 +137,14 @@ public class Player extends Entity{
                 spriteCounter = 0;
             }
         }
+        if (gp.keyH.shotKeyPressed && numOfScrolls > 0)
+        {
+            // SET DEFAULT COORDINATES, AND DIRECTION
+            projectile.set(worldX, worldY, direction,true);
+
+            // ADD IT TO THE ARRAYLIST
+            gp.projectileList.add(projectile);
+        }
 
 
     }
@@ -130,13 +160,27 @@ public class Player extends Entity{
                 case("Key"):
                     numOfKeys++;
                     gp.obj[i] = null;
+                    gp.ui.showMessage("You got a key!");
                     break;
-                case("Door"), ("Chest"):
+                case("Door"):
                     if (numOfKeys > 0)
                     {
                         gp.obj[i] = null;
                         numOfKeys--;
+                        gp.ui.showMessage("You opened a door!");
                     }
+                    else {
+                        gp.ui.showMessage("You need a key to open the door!");
+                    }
+                    break;
+                case ("Scroll"):
+                    numOfScrolls++;
+                    speed += 3;
+                    gp.obj[i] = null;
+                    gp.ui.showMessage("Speed up + shoot snowballs (space bar)");
+                    break;
+                case ("Chest"):
+                    gp.ui.gameFinished = true;
                     break;
             }
         }
@@ -147,8 +191,9 @@ public class Player extends Entity{
 
         switch(direction){
             case "up":
-                if (spriteNum == 1)
+                if (spriteNum == 1) {
                     image = up1;
+                }
                 if (spriteNum == 2)
                     image = up2;
                 break;
@@ -165,7 +210,8 @@ public class Player extends Entity{
                 image = left;
                 break;
         }
-        g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
+        g2.drawImage(image, screenX, screenY, null);
     }
+
 
 }

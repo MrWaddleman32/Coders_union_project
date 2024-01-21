@@ -1,5 +1,6 @@
 package Main;
 
+import Entity.Entity;
 import Entity.Player;
 import Objects.SuperObject;
 import Tile.Tile;
@@ -7,6 +8,7 @@ import Tile.TileManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class GamePanel extends JPanel implements Runnable{
 
@@ -21,13 +23,6 @@ public class GamePanel extends JPanel implements Runnable{
     public final int screenHeight = maxScreenRow * tileSize; // 576 pixels
 
 
-    TileManager tileM = new TileManager(this);
-    KeyHandler keyH = new KeyHandler();
-    Thread gameThread;
-    public collisionChecker cChecker = new collisionChecker(this);
-    public AssetSetter aSetter = new AssetSetter(this);
-    public Player player = new Player(this, keyH);
-    public SuperObject obj[] = new SuperObject[10];
 
     // WORLD SETTINGS
     public final int maxWorldCol = 50;
@@ -37,6 +32,25 @@ public class GamePanel extends JPanel implements Runnable{
 
     // FPS
     int FPS = 60;
+
+    //SYSTEM
+    TileManager tileM = new TileManager(this);
+    public KeyHandler keyH = new KeyHandler(this);
+    Thread gameThread;
+    public collisionChecker cChecker = new collisionChecker(this);
+    public AssetSetter aSetter = new AssetSetter(this);
+    public UI ui = new UI(this);
+    public SuperObject obj[] = new SuperObject[10];
+
+    // ENTITY AND OBJECTS
+    public Player player = new Player(this, keyH);
+    public ArrayList<Entity> projectileList = new ArrayList<>();
+    ArrayList<Entity> entityList = new ArrayList<>();
+
+    // GAME STATE
+    public int gameState;
+    public final int playState = 1;
+    public final int pauseState = 2;
 
     public GamePanel()
     {
@@ -50,6 +64,7 @@ public class GamePanel extends JPanel implements Runnable{
     public void setUpGame()
     {
         aSetter.setObject();
+        gameState = playState;
     }
 
     public void startGameThread(){
@@ -84,7 +99,30 @@ public class GamePanel extends JPanel implements Runnable{
     }
     public void update()
     {
-        player.update();
+        if (gameState == playState)
+        {
+            player.update();
+        }
+        if (gameState == pauseState)
+        {
+            // nothing
+        }
+        // PLAYER
+
+        for (int i = 0; i < projectileList.size(); i++)
+        {
+            if (projectileList.get(i) != null)
+            {
+                if (projectileList.get(i).alive)
+                {
+                    projectileList.get(i).update();
+                }
+                if (!(projectileList.get(i).alive))
+                {
+                    projectileList.remove(i);
+                }
+            }
+        }
 
 
     }
@@ -104,9 +142,19 @@ public class GamePanel extends JPanel implements Runnable{
                 obj[i].draw(g2, this);
             }
         }
+        // PROJECTILES
+        for (int i = 0; i < projectileList.size(); i++)
+        {
+            if (projectileList.get(i) != null)
+            {
+                entityList.add(projectileList.get(i));
+            }
+        }
 
         // PLAYER
         player.draw(g2);
-        g2.dispose();
+        //UI
+        ui.draw(g2);
+
     }
 }
