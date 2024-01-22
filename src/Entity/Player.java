@@ -52,28 +52,12 @@ public class Player extends Entity{
     }
     public void getPlayerImage()
     {
-        up1 = setup("up_1");
-        up2 = setup("up_2");
-        down1 = setup("down_1");
-        down2 = setup("down_2");
-        right = setup("Right");
-        left = setup("Left");
-    }
-
-    public BufferedImage setup(String imageName)
-    {
-        UtilityTool uTool = new UtilityTool();
-        BufferedImage image = null;
-
-        try
-        {
-            image = ImageIO.read(getClass().getResourceAsStream("/player/" + imageName + ".png"));
-            image = uTool.scaleImage(image, gp.tileSize, gp.tileSize);
-        }
-        catch(IOException e){
-            e.printStackTrace();
-        }
-        return image;
+        up1 = setup("/player/up_1");
+        up2 = setup("/player/up_2");
+        down1 = setup("/player/down_1");
+        down2 = setup("/player/down_2");
+        right1 = setup("/player/Right");
+        left1 = setup("/player/Left");
     }
     public void update()
     {
@@ -103,6 +87,10 @@ public class Player extends Entity{
             // CHECK OBJ COLLISION
             int objIndex = gp.cChecker.checkObject(this, true);
             pickUpObject(objIndex);
+
+            // CHECK NPC COLLISION
+            int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
+            interactNPC(npcIndex);
             // IF COLLISION IS FLASE, PLAYER CAN MOVE
             if (!collisionOn)
             {
@@ -185,6 +173,18 @@ public class Player extends Entity{
             }
         }
     }
+    public void interactNPC(int i)
+    {
+        if (i != 999)
+        {
+            if (gp.keyH.enterPressed)
+            {
+                gp.gameState = gp.dialogueState;
+                gp.npc[i].speak();
+            }
+        }
+        gp.keyH.enterPressed = false;
+    }
     public void draw(Graphics2D g2)
     {
         BufferedImage image = null;
@@ -204,10 +204,10 @@ public class Player extends Entity{
                     image = down2;
                 break;
             case "right":
-                image = right;
+                image = right1;
                 break;
             case "left":
-                image = left;
+                image = left1;
                 break;
         }
         g2.drawImage(image, screenX, screenY, null);

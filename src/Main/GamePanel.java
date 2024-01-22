@@ -41,6 +41,7 @@ public class GamePanel extends JPanel implements Runnable{
     public AssetSetter aSetter = new AssetSetter(this);
     public UI ui = new UI(this);
     public SuperObject obj[] = new SuperObject[10];
+    public Entity npc[] = new Entity[10];
 
     // ENTITY AND OBJECTS
     public Player player = new Player(this, keyH);
@@ -49,8 +50,10 @@ public class GamePanel extends JPanel implements Runnable{
 
     // GAME STATE
     public int gameState;
+    public final int titleState = 0;
     public final int playState = 1;
     public final int pauseState = 2;
+    public final int dialogueState = 3;
 
     public GamePanel()
     {
@@ -64,7 +67,8 @@ public class GamePanel extends JPanel implements Runnable{
     public void setUpGame()
     {
         aSetter.setObject();
-        gameState = playState;
+        aSetter.setNPC();
+        gameState = titleState;
     }
 
     public void startGameThread(){
@@ -101,7 +105,15 @@ public class GamePanel extends JPanel implements Runnable{
     {
         if (gameState == playState)
         {
+            // PLAYER
             player.update();
+            // NPC
+            for (int i = 0; i <npc.length; i++)
+            {
+                if (npc[i]!= null){
+                    npc[i].update();
+                }
+            }
         }
         if (gameState == pauseState)
         {
@@ -131,30 +143,52 @@ public class GamePanel extends JPanel implements Runnable{
     {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
-        // TILE
-        tileM.draw(g2);
 
-        // OBJECT
-        for (int i = 0; i < obj.length; i++)
+
+        // TITLE SCREEN
+        if (gameState == titleState)
         {
-            if (obj[i] != null)
-            {
-                obj[i].draw(g2, this);
-            }
+            ui.draw(g2);
         }
-        // PROJECTILES
-        for (int i = 0; i < projectileList.size(); i++)
+        // OTHERS
+        else
         {
-            if (projectileList.get(i) != null)
+            // TILE
+            tileM.draw(g2);
+            // OBJECT
+            for (int i = 0; i < obj.length; i++)
             {
-                entityList.add(projectileList.get(i));
+                if (obj[i] != null)
+                {
+                    obj[i].draw(g2, this);
+                }
             }
+            // NPC
+            for (int i = 0; i < npc.length; i++)
+            {
+                if (npc[i] != null)
+                {
+                    npc[i].draw(g2);
+                }
+            }
+
+            // PROJECTILES
+            for (int i = 0; i < projectileList.size(); i++)
+            {
+                if (projectileList.get(i) != null)
+                {
+                    entityList.add(projectileList.get(i));
+                }
+            }
+
+            // PLAYER
+            player.draw(g2);
+            //UI
+            ui.draw(g2);
         }
 
-        // PLAYER
-        player.draw(g2);
-        //UI
-        ui.draw(g2);
+
+
 
     }
 }

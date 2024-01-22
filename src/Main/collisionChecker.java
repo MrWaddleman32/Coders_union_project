@@ -149,4 +149,113 @@ public class collisionChecker {
         }
         return index;
     }
+    public int checkEntity(Entity entity, Entity[] target)
+    {
+        int  index = 999;
+
+        for (int i = 0; i < target.length; i++)
+        {
+            if (target[i] != null)
+            {
+                // GET ENTITIES SOLID AREA POSITION
+                entity.hitbox.x = entity.worldX + entity.hitbox.x;
+                entity.hitbox.y = entity.worldY + entity.hitbox.y;
+
+                // GET THE OBJECTS SOLID AREA POSITION
+                target[i].hitbox.x = target[i].worldX + target[i].hitbox.x;
+                target[i].hitbox.y = target[i].worldY + target[i].hitbox.y;
+
+                switch(entity.direction)
+                {
+                    case("up"):
+                        entity.hitbox.y -= entity.speed;
+                        if (entity.hitbox.intersects(target[i].hitbox))
+                        {
+                            entity.collisionOn = true;
+                            index = i;
+                        }
+                        break;
+                    case("down"):
+                        entity.hitbox.y += entity.speed;
+                        if (entity.hitbox.intersects(target[i].hitbox))
+                        {
+                            entity.collisionOn = true;
+                            index = i;
+                        }
+                        break;
+                    case("left"):
+                        entity.hitbox.x -= entity.speed;
+                        if (entity.hitbox.intersects(target[i].hitbox))
+                        {
+                            entity.collisionOn = true;
+                            index = i;
+                        }
+                        break;
+                    case("right"):
+                        entity.hitbox.x += entity.speed;
+                        if (entity.hitbox.intersects(target[i].hitbox))
+                        {
+                            entity.collisionOn = true;
+                            index = i;
+                        }
+                        break;
+                }
+                entity.hitbox.x = entity.hitboxDefaultX;
+                entity.hitbox.y = entity.hitboxDefaultY;
+                target[i].hitbox.x = target[i].hitboxDefaultX;
+                target[i].hitbox.y = target[i].hitboxDefaultY;
+
+
+            }
+        }
+        return index;
+    }
+    public void checkPlayer(Entity entity)
+    {
+        // GET ENTITIES SOLID AREA POSITION
+        entity.hitbox.x = entity.worldX + entity.hitbox.x;
+        entity.hitbox.y = entity.worldY + entity.hitbox.y;
+
+        // GET THE OBJECTS SOLID AREA POSITION
+        gp.player.hitbox.x = gp.player.worldX + gp.player.hitbox.x;
+        gp.player.hitbox.y = gp.player.worldY + gp.player.hitbox.y;
+
+        switch(entity.direction)
+        {
+            case("up"):
+                entity.hitbox.y -= entity.speed;
+                if (entity.hitbox.intersects(gp.player.hitbox))
+                {
+                    entity.collisionOn = true;
+                }
+                break;
+            case("down"):
+                entity.hitbox.y += entity.speed;
+                if (entity.hitbox.intersects(gp.player.hitbox))
+                {
+                    entity.collisionOn = true;
+                }
+                break;
+            case("left"):
+                entity.hitbox.x -= entity.speed;
+                if (entity.hitbox.intersects(gp.player.hitbox))
+                {
+                    entity.collisionOn = true;
+                }
+                break;
+            case("right"):
+                entity.hitbox.x += entity.speed;
+                if (entity.hitbox.intersects(gp.player.hitbox))
+                {
+                    entity.collisionOn = true;
+                }
+                break;
+        }
+        entity.hitbox.x = entity.hitboxDefaultX;
+        entity.hitbox.y = entity.hitboxDefaultY;
+        gp.player.hitbox.x = gp.player.hitboxDefaultX;
+        gp.player.hitbox.y = gp.player.hitboxDefaultY;
+
+
+    }
 }

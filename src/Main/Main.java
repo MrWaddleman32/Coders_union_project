@@ -8,7 +8,7 @@ public class Main {
     {
             JFrame window = new JFrame();
             window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            window.setResizable(false);
+            window.setResizable(true);
             window.setTitle("Snowboy Adventures");
 
             GamePanel gamePanel = new GamePanel();
