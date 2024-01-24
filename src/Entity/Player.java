@@ -8,6 +8,7 @@ import jdk.jshell.execution.Util;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics2D;
 import java.io.IOException;
@@ -35,20 +36,33 @@ public class Player extends Entity{
         hitbox.height = 24;
         setDefaultValues();
         getPlayerImage();
-        direction = "down";
     }
 
     public void setDefaultValues()
     {
-        worldX = gp.tileSize * 23 - (gp.tileSize/2);
-        worldY = gp.tileSize * 21 - (gp.tileSize/2);
-        speed = 9;
+        worldX = gp.tileSize * 23;
+        worldY = gp.tileSize * 21;
+        speed = 7;
+        direction = "down";
+        maxLife = 6;
+        life = maxLife;
         strength = 1;
         dexterity = 1;
         exp = 0;
         nextLevelExp = 0;
         coin = 0;
         projectile = new OBJ_Snowball(gp);
+    }
+
+    public void setDefaultPositions()
+    {
+        worldX = gp.tileSize * 23;
+        worldY = gp.tileSize * 21;
+        direction = "down";
+    }
+    public void restoreLife(){
+        life = maxLife;
+        invincible = false;
     }
     public void getPlayerImage()
     {
@@ -61,7 +75,7 @@ public class Player extends Entity{
     }
     public void update()
     {
-        if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed)
+        if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed || keyH.enterPressed)
         {
             if(keyH.upPressed)
             {
@@ -91,8 +105,15 @@ public class Player extends Entity{
             // CHECK NPC COLLISION
             int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
             interactNPC(npcIndex);
-            // IF COLLISION IS FLASE, PLAYER CAN MOVE
-            if (!collisionOn)
+
+            // CHECK MONSTER COLLISION
+            int monIndex = gp.cChecker.checkEntity(this,gp.monster);
+            contactMonster(monIndex);
+            // CHECK EVENT
+            gp.eHandler.checkEvent();
+
+            // IF COLLISION IS FALSE, PLAYER CAN MOVE
+            if (!collisionOn && keyH.enterPressed == false)
             {
                 switch(direction)
                 {
@@ -111,6 +132,8 @@ public class Player extends Entity{
                 }
             }
 
+            gp.keyH.enterPressed = false;
+
 
             spriteCounter++;
             if(spriteCounter > 12){
@@ -125,22 +148,42 @@ public class Player extends Entity{
                 spriteCounter = 0;
             }
         }
-        if (gp.keyH.shotKeyPressed && numOfScrolls > 0)
+        if (gp.keyH.shotKeyPressed && numOfScrolls > 0 && projectile.alive == false && shotAvailableCounter == 30)
         {
             // SET DEFAULT COORDINATES, AND DIRECTION
-            projectile.set(worldX, worldY, direction,true);
+            projectile.set(worldX, worldY, direction,true, this);
 
             // ADD IT TO THE ARRAYLIST
             gp.projectileList.add(projectile);
+            shotAvailableCounter = 0;
+        }
+        if(invincible)
+        {
+            invincibleCounter++;
+            if (invincibleCounter > 90)
+            {
+                invincible = false;
+                invincibleCounter = 0;
+            }
         }
 
+        if(shotAvailableCounter <  30)
+        {
+            shotAvailableCounter++;
+        }
 
+        if (life<=0)
+        {
+            gp.gameState = gp.gameOverState;
+        }
     }
+
 
     public void pickUpObject(int i)
     {
         if (i != 999)
         {
+
             String objectName = gp.obj[i].name;
 
             switch(objectName)
@@ -183,7 +226,34 @@ public class Player extends Entity{
                 gp.npc[i].speak();
             }
         }
-        gp.keyH.enterPressed = false;
+
+    }
+    public void contactMonster(int index)
+    {
+        if (index != 999)
+        {
+            if (!invincible) {
+                life -= 1;
+                invincible = true;
+            }
+        }
+    }
+
+    public void damageMonster(int i, int attack)
+    {
+        if (i != 999)
+        {
+            if (gp.monster[i].invincible == false)
+            {
+                gp.monster[i].life -= attack;
+                gp.monster[i].invincible = true;
+
+                if (gp.monster[i].life <= 0)
+                {
+                    gp.monster[i] = null;
+                }
+            }
+        }
     }
     public void draw(Graphics2D g2)
     {
@@ -210,7 +280,14 @@ public class Player extends Entity{
                 image = left1;
                 break;
         }
+
+        if (invincible)
+        {
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
+        }
         g2.drawImage(image, screenX, screenY, null);
+
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
     }
 
 

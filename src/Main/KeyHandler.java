@@ -8,7 +8,6 @@ import java.awt.event.KeyListener;
 public class KeyHandler implements KeyListener {
     GamePanel gp;
     public boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed, shotKeyPressed;
-
     public KeyHandler(GamePanel gp)
     {
         this.gp = gp;
@@ -101,9 +100,46 @@ public class KeyHandler implements KeyListener {
 
             }
         }
+        // GAME OVER STATE
+        else if (gp.gameState == gp.gameOverState)
+        {
+            gameOverState(code);
+        }
 
 
 
+    }
+    public void gameOverState(int code)
+    {
+        if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP)
+        {
+            gp.ui.commandNum--;
+            if (gp.ui.commandNum < 0)
+            {
+                gp.ui.commandNum = 1;
+            }
+        }
+        if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN)
+        {
+            gp.ui.commandNum++;
+            if (gp.ui.commandNum > 1)
+            {
+                gp.ui.commandNum = 0;
+            }
+        }
+        if (code == KeyEvent.VK_ENTER)
+        {
+            if (gp.ui.commandNum == 0)
+            {
+                gp.gameState = gp.playState;
+                gp.retry();
+            }
+            else  if (gp.ui.commandNum == 1)
+            {
+
+                System.exit(0);
+            }
+        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package Main;
 
+import Entity.Entity;
 import Entity.NPC_OldMan;
 import Objects.OBJ_Chest;
 import Objects.OBJ_Door;
@@ -21,12 +22,16 @@ public class AssetSetter {
         gp.obj[0].worldY = 7 * gp.tileSize;
 
         gp.obj[1] = new OBJ_Key(gp);
-        gp.obj[1].worldX = 23 * gp.tileSize;
-        gp.obj[1].worldY = 40 * gp.tileSize;
+        gp.obj[1].worldX = 33 * gp.tileSize;
+        gp.obj[1].worldY = 8 * gp.tileSize;
 
         gp.obj[2] = new OBJ_Key(gp);
-        gp.obj[2].worldX = 38 * gp.tileSize;
-        gp.obj[2].worldY = 8 * gp.tileSize;
+        gp.obj[2].worldX = 8 * gp.tileSize;
+        gp.obj[2].worldY = 22 * gp.tileSize;
+
+
+
+
 
         gp.obj[3] = new OBJ_Door(gp);
         gp.obj[3].worldX = 10 * gp.tileSize;
@@ -53,5 +58,39 @@ public class AssetSetter {
         gp.npc[0] = new NPC_OldMan(gp);
         gp.npc[0].worldX = gp.tileSize * 21;
         gp.npc[0].worldY = gp.tileSize * 21;
+    }
+
+    public void setMonster()
+    {
+        gp.monster[0] = new MON_Frostnapper(gp);
+        gp.monster[0].worldX = gp.tileSize * 36;
+        gp.monster[0].worldY = gp.tileSize * 10;
+
+        gp.monster[1] = new MON_Frostnapper(gp);
+        gp.monster[1].worldX = gp.tileSize * 36;
+        gp.monster[1].worldY = gp.tileSize * 11;
+
+        gp.monster[2] = new MON_Frostnapper(gp);
+        gp.monster[2].worldX = gp.tileSize * 35;
+        gp.monster[2].worldY = gp.tileSize * 10;
+
+        gp.monster[3] = new MON_HeadFrostnapper(gp);
+        gp.monster[3].worldX = gp.tileSize * 10;
+        gp.monster[3].worldY = gp.tileSize * 26;
+
+        gp.monster[4] = new MON_Frostnapper(gp);
+        gp.monster[4].worldX = gp.tileSize * 11;
+        gp.monster[4].worldY = gp.tileSize * 26;
+
+        gp.monster[5] = new MON_Frostnapper(gp);
+        gp.monster[5].worldX = gp.tileSize * 10;
+        gp.monster[5].worldY = gp.tileSize * 27;
+
+        gp.monster[6] = new MON_Frostnapper(gp);
+        gp.monster[6].worldX = gp.tileSize * 11;
+        gp.monster[6].worldY = gp.tileSize * 27;
+
+
+
     }
 }
