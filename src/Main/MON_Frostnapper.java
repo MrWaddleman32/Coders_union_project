@@ -15,9 +15,14 @@ public class MON_Frostnapper extends Entity {
 
         type = 2;
         name = "Frostnapper";
-        speed = 4;
-        maxLife = 4;
+        speed = 2;
+        attack = 5;
+        defense = 0;
+        maxLife = 8;
         life = maxLife;
+        alive = true;
+        dying = false;
+        exp = 3;
 
         hitbox.x = 12;
         hitbox.y = 3;
@@ -31,12 +36,12 @@ public class MON_Frostnapper extends Entity {
 
     public void getImage()
     {
-        up1 = setup("/monster/fs_up1");
-        up2 = setup("/monster/fs_up2");
-        down1 = setup("/monster/fs_down1");
-        down2 = setup("/monster/fs_down2");
-        left1 = setup("/monster/fs_left");
-        right1 = setup("/monster/fs_right");
+        up1 = setup("/monster/fs_up1", gp.tileSize ,gp.tileSize);
+        up2 = setup("/monster/fs_up2", gp.tileSize, gp.tileSize);
+        down1 = setup("/monster/fs_down1", gp.tileSize, gp.tileSize);
+        down2 = setup("/monster/fs_down2", gp.tileSize, gp.tileSize);
+        left1 = setup("/monster/fs_left",gp.tileSize ,gp.tileSize);
+        right1 = setup("/monster/fs_right",gp.tileSize,gp.tileSize);
     }
 
     public void setAction()
@@ -63,12 +68,21 @@ public class MON_Frostnapper extends Entity {
             actionLockCounter = 0;
         }
 
-        int i = new Random().nextInt(100) + 1;
-        if (i > 99 && projectile.alive == false && shotAvailableCounter == 30)
-        {
-            projectile.set(worldX,worldY,direction, true, this);
-            gp.projectileList.add(projectile);
-            shotAvailableCounter = 0;
-        }
+
+        // This next part lets the monsters shoot snowballs
+
+//        int i = new Random().nextInt(100) + 1;
+//        if (i > 99 && projectile.alive == false && shotAvailableCounter == 30)
+//        {
+//            projectile.set(worldX,worldY,direction, true, this);
+//            gp.projectileList.add(projectile);
+//            shotAvailableCounter = 0;
+//        }
+    }
+
+    public void damageReaction()
+    {
+        actionLockCounter = 0;
+        direction = gp.player.direction;
     }
 }

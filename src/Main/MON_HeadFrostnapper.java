@@ -32,12 +32,12 @@ public class MON_HeadFrostnapper extends Entity {
 
     public void getImage()
     {
-        up1 = setup("/monster/HeadFrostnapper");
-        up2 = setup("/monster/HeadFrostnapper");
-        down1 = setup("/monster/HeadFrostnapper");
-        down2 = setup("/monster/HeadFrostnapper");
-        left1 = setup("/monster/HeadFrostnapper");
-        right1 = setup("/monster/HeadFrostnapper");
+        up1 = setup("/monster/HeadFrostnapper",gp.tileSize,gp.tileSize);
+        up2 = setup("/monster/HeadFrostnapper",gp.tileSize,gp.tileSize);
+        down1 = setup("/monster/HeadFrostnapper",gp.tileSize,gp.tileSize);
+        down2 = setup("/monster/HeadFrostnapper",gp.tileSize,gp.tileSize);
+        left1 = setup("/monster/HeadFrostnapper",gp.tileSize,gp.tileSize);
+        right1 = setup("/monster/HeadFrostnapper",gp.tileSize,gp.tileSize);
     }
 
     public void setAction()

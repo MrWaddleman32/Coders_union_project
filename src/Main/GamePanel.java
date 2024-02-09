@@ -31,8 +31,6 @@ public class GamePanel extends JPanel implements Runnable{
     // WORLD SETTINGS
     public final int maxWorldCol = 50;
     public final int maxWorldRow = 50;
-    public final int worldWidth = tileSize * maxWorldCol;
-    public final int worldHeight = tileSize * maxWorldRow;
 
     // FPS
     int FPS = 60;
@@ -40,9 +38,11 @@ public class GamePanel extends JPanel implements Runnable{
     //SYSTEM
     public TileManager tileM = new TileManager(this);
     public KeyHandler keyH = new KeyHandler(this);
-    Thread gameThread;
+    Sound sound = new Sound();
     public collisionChecker cChecker = new collisionChecker(this);
     public AssetSetter aSetter = new AssetSetter(this);
+
+    Thread gameThread;
     public EventHandler eHandler = new EventHandler(this);
     public PathFinder pFinder = new PathFinder(this);
     public UI ui = new UI(this);
@@ -62,6 +62,7 @@ public class GamePanel extends JPanel implements Runnable{
     public final int pauseState = 2;
     public final int dialogueState = 3;
     public final int gameOverState = 4;
+    public final int characterState = 5;
 
     public GamePanel()
     {
@@ -122,6 +123,7 @@ public class GamePanel extends JPanel implements Runnable{
     {
         if (gameState == playState)
         {
+
             // PLAYER
             player.update();
             // NPC
@@ -131,11 +133,17 @@ public class GamePanel extends JPanel implements Runnable{
                     npc[i].update();
                 }
             }
-            for (int i =0; i < monster.length; ++i)
+            for (int i = 0; i < monster.length; ++i)
             {
-                if (monster[i] != null)
-                {
-                    monster[i].update();
+                if (monster[i] != null) {
+                   if (monster[i].alive && !monster[i].dying)
+                  {
+                        monster[i].update();
+                    }
+                    if (!monster[i].alive)
+                    {
+                        monster[i] = null;
+                    }
                 }
             }
             for (int i = 0; i < projectileList.size(); i++)
@@ -212,6 +220,7 @@ public class GamePanel extends JPanel implements Runnable{
             }
 
 
+
             // SORT
             Collections.sort(entityList, new Comparator<Entity>() {
 
@@ -230,14 +239,29 @@ public class GamePanel extends JPanel implements Runnable{
             }
             // EMPTY ENTITY LIST
             entityList.clear();
-
-
             //UI
             ui.draw(g2);
+
         }
 
 
 
 
+    }
+
+    public void playMusic(int i)
+    {
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+    }
+    public void stopMusic()
+    {
+        sound.stop();
+    }
+    public void playSE(int i)
+    {
+        sound.setFile(i);
+        sound.play();
     }
 }

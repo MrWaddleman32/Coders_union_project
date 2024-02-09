@@ -12,6 +12,6 @@ public class OBJ_Scroll extends Entity {
     {
         super(gp);
         name = "Scroll";
-        down1 = setup("/objects/Scroll");
+        down1 = setup("/objects/Scroll",gp.tileSize,gp.tileSize);
     }
 }

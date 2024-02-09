@@ -39,12 +39,7 @@ public class EventHandler{
 
     public void checkEvent()
     {
-        if (hit(24,23,"right")) {damagePit(gp.dialogueState);}
-        if (hit(23,7,"up")){healingPit(gp.dialogueState);}
-        if (hit(35,21,"right")){tutorial(gp.dialogueState);}
-        if (hit(37,42,"down")){scrollInstructions(gp.dialogueState);}
-        if (hit(38,13,"up")){firstFight(gp.dialogueState);}
-        if (hit(10,11,"up")){congrats(gp.dialogueState);}
+        // PLACE THE EVENTS THAT YOU WANT TO CHECK HERE
     }
 
     public boolean hit(int col, int row, String reqDirection)
@@ -84,31 +79,10 @@ public class EventHandler{
         if(gp.keyH.enterPressed)
         {
             gp.gameState = gameState;
+            gp.player.attackCancel = true;
             gp.ui.currentDialogue = "You dring the water \n your life is recovered";
             gp.player.life = gp.player.maxLife;
         }
-    }
-    public void tutorial(int gamestate)
-    {
-        gp.gameState = gamestate;
-        gp.ui.currentDialogue = "You must find the sacred \n scroll of snowball fighting \n before fighting your enemies";
-    }
-    public void scrollInstructions(int gamestate)
-    {
-        gp.gameState =gamestate;
-        gp.ui.currentDialogue = "You are now faster and can \n shoot snowballs by pressing space bar. \n This is how you defeat enemies";
-    }
-
-    public void firstFight(int gamestate)
-    {
-        gp.gameState = gamestate;
-        gp.ui.currentDialogue = "You cannot grab the key until all \n three frostnappers are defeated";
-    }
-
-    public void congrats(int gamestate)
-    {
-        gp.gameState = gamestate;
-        gp.ui.currentDialogue = "Congratulations, you have saved \n Frosty's family";
     }
 
 

@@ -3,7 +3,10 @@ package Entity;
 import Main.GamePanel;
 import Main.KeyHandler;
 import Main.UtilityTool;
+import Objects.OBJ_Key;
 import Objects.OBJ_Snowball;
+import Objects.OBJ_Sword_Ice;
+import Objects.OBJ_Sword_Wood;
 import jdk.jshell.execution.Util;
 
 import javax.imageio.ImageIO;
@@ -12,6 +15,7 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics2D;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Player extends Entity{
     Graphics2D snowball;
@@ -20,8 +24,11 @@ public class Player extends Entity{
     public final int screenY;
     public int numOfKeys = 0;
     public int numOfScrolls = 0;
-    public Player(GamePanel gp, KeyHandler keyH)
-    {
+    public boolean attackCancel = false;
+    public ArrayList<Entity> inventory = new ArrayList<Entity>();
+    public final int maxInventorySize = 20;
+
+    public Player(GamePanel gp, KeyHandler keyH) {
         super(gp);
         this.keyH = keyH;
 
@@ -34,28 +41,51 @@ public class Player extends Entity{
         hitboxDefaultY = hitbox.y;
         hitbox.width = 24;
         hitbox.height = 24;
+
+        attackHitBox.width = 36;
+        attackHitBox.height = 36;
         setDefaultValues();
         getPlayerImage();
+        getPlayerAttackImages();
+        setItems();
     }
 
-    public void setDefaultValues()
-    {
+    public void setDefaultValues() {
         worldX = gp.tileSize * 23;
         worldY = gp.tileSize * 21;
-        speed = 7;
+        speed = 4;
         direction = "down";
+
+        //PLAYER STATUS
         maxLife = 6;
         life = maxLife;
         strength = 1;
         dexterity = 1;
+        defense = 1;
         exp = 0;
-        nextLevelExp = 0;
+        nextLevelExp = 5;
         coin = 0;
+        level = 1;
+        currentWeapon = new OBJ_Sword_Wood(gp);
+        attack = getAttack();
+//        defense = getDefense();
         projectile = new OBJ_Snowball(gp);
     }
+    public void setItems() {
+        inventory.add(currentWeapon);
+//      inventory.add(currentShield);
+        inventory.add(new OBJ_Key(gp));
+        inventory.add(new OBJ_Key(gp));
+    }
+    public int getAttack() {
+        return attack = strength * currentWeapon.attackValue;
+    }
+//    public int getDefense()
+//    {
+//    }
 
-    public void setDefaultPositions()
-    {
+
+    public void setDefaultPositions() {
         worldX = gp.tileSize * 23;
         worldY = gp.tileSize * 21;
         direction = "down";
@@ -64,18 +94,20 @@ public class Player extends Entity{
         life = maxLife;
         invincible = false;
     }
-    public void getPlayerImage()
-    {
-        up1 = setup("/player/up_1");
-        up2 = setup("/player/up_2");
-        down1 = setup("/player/down_1");
-        down2 = setup("/player/down_2");
-        right1 = setup("/player/Right");
-        left1 = setup("/player/Left");
+    public void getPlayerImage() {
+        up1 = setup("/player/up_1", gp.tileSize, gp.tileSize);
+        up2 = setup("/player/up_2", gp.tileSize, gp.tileSize);
+        down1 = setup("/player/down_1", gp.tileSize, gp.tileSize);
+        down2 = setup("/player/down_2", gp.tileSize ,gp.tileSize);
+        right1 = setup("/player/Right", gp.tileSize ,gp.tileSize);
+        left1 = setup("/player/Left", gp.tileSize, gp.tileSize);
     }
-    public void update()
-    {
-        if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed || keyH.enterPressed)
+    public void update() {
+        if (attacking)
+        {
+            attacking();
+        }
+        else if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed || keyH.enterPressed)
         {
             if(keyH.upPressed)
             {
@@ -130,8 +162,16 @@ public class Player extends Entity{
                         worldX += speed;
                         break;
                 }
-            }
 
+                if (keyH.enterPressed && attackCancel == false)
+                {
+                    gp.playSE(7);
+                    attacking = true;
+                    spriteCounter = 0;
+                }
+
+            }
+            attackCancel = false;
             gp.keyH.enterPressed = false;
 
 
@@ -148,7 +188,7 @@ public class Player extends Entity{
                 spriteCounter = 0;
             }
         }
-        if (gp.keyH.shotKeyPressed && numOfScrolls > 0 && projectile.alive == false && shotAvailableCounter == 30)
+        if (gp.keyH.shotKeyPressed /* && numOfScrolls > 0 */ && projectile.alive == false && shotAvailableCounter == 30)
         {
             // SET DEFAULT COORDINATES, AND DIRECTION
             projectile.set(worldX, worldY, direction,true, this);
@@ -177,10 +217,50 @@ public class Player extends Entity{
             gp.gameState = gp.gameOverState;
         }
     }
+    public void attacking() {
+        spriteCounter++;
+        if (spriteCounter <= 5)
+        {
+            spriteNum = 1;
+        }
+        if (spriteCounter> 5 && spriteCounter <= 50)
+        {
+            spriteNum = 2;
 
+            // SAVE ORIGINAL X AND Y HITBOX SO WE CAN MOVE HITBOX WHEN HE ATTACKS
+            int currentWorldX = worldX;
+            int currentWorldY = worldY;
+            int hitboxWidth = hitbox.width;
+            int hitboxHeight = hitbox.height;
+            //ADJUST PLAYERS HITBOX TO THE SWORD
+            switch(direction)
+            {
+                case "up": worldY -= attackHitBox.height; break;
+                case "down": worldY += attackHitBox.height; break;
+                case "left": worldX -= attackHitBox.width; break;
+                case "right": worldX += attackHitBox.width; break;
+            }
+            // Attack hitbox becomes only the sword
+            hitbox.width = attackHitBox.width;
+            hitbox.height = attackHitBox.height;
 
-    public void pickUpObject(int i)
-    {
+            // Check if we are hitting a monster and returning the original hitbox
+            int monsterIndex = gp.cChecker.checkEntity(this, gp.monster);
+            damageMonster(monsterIndex, attack);
+
+            worldX = currentWorldX;
+            worldY = currentWorldY;
+            hitbox.width = hitboxWidth;
+            hitbox.height = hitboxHeight;
+        }
+        if (spriteCounter > 25)
+        {
+            spriteNum = 1;
+            spriteCounter = 0;
+            attacking = false;
+        }
+    }
+    public void pickUpObject(int i) {
         if (i != 999)
         {
 
@@ -191,24 +271,24 @@ public class Player extends Entity{
                 case("Key"):
                     numOfKeys++;
                     gp.obj[i] = null;
-                    gp.ui.showMessage("You got a key!");
+                    gp.ui.addMessage("You got a key!");
                     break;
                 case("Door"):
                     if (numOfKeys > 0)
                     {
                         gp.obj[i] = null;
                         numOfKeys--;
-                        gp.ui.showMessage("You opened a door!");
+                        gp.ui.addMessage("You opened a door!");
                     }
                     else {
-                        gp.ui.showMessage("You need a key to open the door!");
+                        gp.ui.addMessage("You need a key to open the door!");
                     }
                     break;
                 case ("Scroll"):
                     numOfScrolls++;
                     speed += 3;
                     gp.obj[i] = null;
-                    gp.ui.showMessage("Speed up + shoot snowballs (space bar)");
+                    gp.ui.addMessage("Speed up + shoot snowballs (space bar)");
                     break;
                 case ("Chest"):
                     gp.ui.gameFinished = true;
@@ -216,68 +296,113 @@ public class Player extends Entity{
             }
         }
     }
-    public void interactNPC(int i)
-    {
-        if (i != 999)
-        {
-            if (gp.keyH.enterPressed)
+    public void interactNPC(int i) {
+        if (gp.keyH.enterPressed){
+            if (i != 999)
             {
+                attackCancel = true;
                 gp.gameState = gp.dialogueState;
                 gp.npc[i].speak();
+            }
+            else
+            {
+                attacking = true;
             }
         }
 
     }
-    public void contactMonster(int index)
-    {
+    public void contactMonster(int index) {
         if (index != 999)
         {
             if (!invincible) {
-                life -= 1;
+                gp.playSE(6);
+
+                int damage = gp.monster[index].attack - defense;
+                if (damage < 0){
+                    damage = 0;
+                }
+                life -= damage;
                 invincible = true;
             }
         }
     }
-
-    public void damageMonster(int i, int attack)
-    {
+    public void damageMonster(int i, int attack) {
         if (i != 999)
         {
             if (gp.monster[i].invincible == false)
             {
-                gp.monster[i].life -= attack;
+                gp.playSE(5);
+
+                int damage = attack - gp.monster[i].defense;
+                if (damage < 0) {
+                    damage = 0;
+                }
+                gp.monster[i].life -= damage;
+                gp.ui.addMessage(damage + " damage!");
                 gp.monster[i].invincible = true;
+                gp.monster[i].damageReaction();
 
                 if (gp.monster[i].life <= 0)
                 {
-                    gp.monster[i] = null;
+                    gp.monster[i].dying = true;
+                    gp.ui.addMessage("killed the " + gp.monster[i].name + "!");
+                    gp.ui.addMessage("exp + " + gp.monster[i].exp + "!");
+                    exp += gp.monster[i].exp;
+                    checkLevelUp();
                 }
             }
         }
     }
-    public void draw(Graphics2D g2)
-    {
+    public void checkLevelUp() {
+        if (exp >= nextLevelExp)
+        {
+            level++;
+            nextLevelExp += 10;
+            maxLife += 2;
+            strength += 2;
+            dexterity += 2;
+            attack = getAttack();
+            gp.playSE(8);
+            gp.gameState = gp.dialogueState;
+            gp.ui.currentDialogue = "You Leveled up, you are level " + level + " now";
+        }
+    }
+    public void draw(Graphics2D g2) {
+
+        int tempScreenX = screenX;
+        int tempScreenY = screenY;
         BufferedImage image = null;
 
         switch(direction){
             case "up":
-                if (spriteNum == 1) {
-                    image = up1;
+                if (attacking == false) {
+                    if (spriteNum == 1) {image = up1;}
+                    if (spriteNum == 2) image = up2;
                 }
-                if (spriteNum == 2)
-                    image = up2;
+                if (attacking) {
+                    tempScreenY = screenY - gp.tileSize;
+                    if (spriteNum == 1) {image = attackUp1;}
+                    if (spriteNum == 2) image = attackUp2;
+                }
                 break;
             case "down":
-                if (spriteNum == 1)
-                    image = down1;
-                if (spriteNum == 2)
-                    image = down2;
+                if (attacking == false) {
+                    if (spriteNum == 1) image = down1;
+                    if (spriteNum == 2) image = down2;
+                }
+                if (attacking)
+                {
+                    if (spriteNum == 1) image = attackDown1;
+                    if (spriteNum == 2) image = attackDown2;
+                }
                 break;
             case "right":
-                image = right1;
+                if (attacking == false) {image = right1;}
+                if (attacking){image = attackRight1;}
                 break;
             case "left":
-                image = left1;
+                if (attacking == false) {image = left1;}
+                if (attacking){ tempScreenX = screenX - gp.tileSize; image = attackLeft1;}
                 break;
         }
 
@@ -285,9 +410,17 @@ public class Player extends Entity{
         {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
         }
-        g2.drawImage(image, screenX, screenY, null);
+        g2.drawImage(image, tempScreenX, tempScreenY, null);
 
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+    }
+    public void getPlayerAttackImages() {
+        attackUp2 = setup("/player/Frosty_Up_SwordAttack", gp.tileSize, gp.tileSize * 2);
+        attackUp1 = setup("/player/Frosty_Up_AttackPrep", gp.tileSize, gp.tileSize * 2);
+        attackDown2 = setup("/player/Frosty_Down_SwordAttack", gp.tileSize, gp.tileSize * 2);
+        attackDown1 = setup("/player/Frosty_Down_AttackPrep", gp.tileSize, gp.tileSize * 2);
+        attackLeft1 = setup("/player/Frosty_Left_SwordAttack", gp.tileSize * 2, gp.tileSize);
+        attackRight1 = setup("/player/Frosty_Right_SwordAttack", gp.tileSize * 2, gp.tileSize);
     }
 
 
