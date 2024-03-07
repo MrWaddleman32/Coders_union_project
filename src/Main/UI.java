@@ -30,8 +30,10 @@ public class UI {
     public int commandNum = 0;
     public int slotCol = 0;
     public int slotRow = 0;
+    public final int numOfLevels = 3;
 
     public int titleScreenState = 0; //0: first screen ; 1: second screen ect.
+    public int levelCommandNum = 1; // 1: first level ; 2: second level ect.
 
     public UI(GamePanel gp)
     {
@@ -99,6 +101,15 @@ public class UI {
         {
             drawGameOverScreen();
         }
+        // LEVEL SELECTOR
+        if (gp.gameState == gp.selectLevelState)
+        {
+            drawLevelSelector();
+        }
+        if (gp.gameState == gp.lvl1PreSceneState)
+        {
+            gp.tileM.loadMap("/maps/Lvl1CutScene.txt");
+        }
 
     }
     public void drawTitleScreen()
@@ -106,7 +117,7 @@ public class UI {
         if (titleScreenState == 0)
         {
             g2.setColor(new Color(0,0,0));
-            g2.fillRect(0,0,gp.screenWidth, gp.screenHeight);
+            g2.fillRect(0,0,gp.screenWidth2, gp.screenHeight2);
 
             //TITLE NAME
 
@@ -380,24 +391,148 @@ public class UI {
         final int slotYStart = frameY + 20;
         int slotX = slotXStart;
         int slotY = slotYStart;
+        int slotSize = gp.tileSize+3;
 
         //DRAW PLAYERS ITEMS
         for (int i = 0; i < gp.player.inventory.size(); ++i) {
-
+            // EQUIP CURSOR
+            if (gp.player.inventory.get(i) == gp.player.currentWeapon)
+            {
+                g2.setColor(new Color(240,190,0));
+                g2.fillRoundRect(slotX,slotY,gp.tileSize, gp.tileSize, 10, 10);
+            }
             g2.drawImage(gp.player.inventory.get(i).down1, slotX, slotY, null);
-            slotX += gp.tileSize;
+            slotX += slotSize;
+
+            if (i == 4 || i == 9 || i == 14)
+            {
+                slotX = slotXStart;
+                slotY += slotSize;
+            }
         }
 
         // CURSOR
 
-        int cursorX = slotXStart + gp.tileSize*slotCol;
-        int cursorY = slotYStart + gp.tileSize*slotRow;
+        int cursorX = slotXStart + slotSize*slotCol;
+        int cursorY = slotYStart + slotSize*slotRow;
         int cursorWidth = gp.tileSize;
         int cursorHeight = gp.tileSize;
         // DRAW CURSOR
         g2.setColor(Color.WHITE);
         g2.setStroke(new BasicStroke(3));
         g2.drawRoundRect(cursorX, cursorY, cursorWidth, cursorHeight, 10, 10);
+
+        //DESCRIPTION WINDOW
+        int dFrameX = frameX;
+        int dFrameY = frameY + frameHeight;
+        int dFrameWidth = frameWidth;
+        int dFrameHeight = gp.tileSize * 3;
+        drawSubWindow(dFrameX, dFrameY, dFrameWidth, dFrameHeight);
+        // DRAW THE DESCRIPTION TEXT
+        int textX = dFrameX + 20;
+        int textY = dFrameY + gp.tileSize;
+        g2.setFont(g2.getFont().deriveFont(28F));
+        int itemIndex = getItemIndex();
+        if (itemIndex < gp.player.inventory.size())
+        {
+            for (String line : gp.player.inventory.get(itemIndex).description.split("\n"))
+            {
+                g2.drawString(line, textX ,textY);
+                textY += 28;
+            }
+        }
+
+
+    }
+    public void drawLevelSelector()
+    {
+        // COORDINATES
+        int level = 1;
+        int levelX = gp.tileSize * 5;
+        int levelY = gp.tileSize * 3;
+        int levelWidth = gp.tileSize * 2;
+        int levelHeight = gp.tileSize * 2;
+        int textX = levelX + gp.tileSize - 8;
+        int textY = levelY + gp.tileSize + 10;
+        int originalCursorX = textX;
+        int cursorX = textX;
+        int cursorY = textY + gp.tileSize * 2 + 10;
+        int gapBetweenBoxes = gp.tileSize * 4;
+        String cursor = "^";
+        // LEVEL BOXES
+        for (int i = 0; i < numOfLevels; ++i) {
+            Color c = new Color(255, 255, 255);
+            g2.setColor(c);
+            g2.setStroke(new BasicStroke(5));
+            g2.fillRoundRect(levelX, levelY, levelWidth, levelHeight, 8, 8);
+            g2.setColor(Color.BLACK);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 32f));
+            g2.drawString(Integer.toString(level), textX, textY);
+            levelX += gp.tileSize * 4;
+            textX = levelX + gp.tileSize - 8;
+            level++;
+        }
+        // CURSOR
+        g2.setColor(Color.WHITE);;
+        if (levelCommandNum == 1) {
+            g2.clearRect(cursorX + gapBetweenBoxes - 10, cursorY - 60, 100, 100);
+            g2.clearRect(cursorX + gapBetweenBoxes*2 - 10, cursorY - 60, 100, 100);
+            g2.drawString(cursor, cursorX, cursorY);
+        }
+        if (levelCommandNum == 2)
+        {
+            g2.clearRect(cursorX - 10, cursorY - 60, 100, 100);
+            g2.clearRect(cursorX + gapBetweenBoxes * 2 - 10, cursorY - 60, 100, 100);
+            g2.drawString(cursor, cursorX + gapBetweenBoxes, cursorY);
+        }
+        if (levelCommandNum == 3)
+        {
+            g2.clearRect(cursorX  + gapBetweenBoxes - 10, cursorY - 60, 100, 100);
+            g2.clearRect(cursorX  - 10, cursorY - 60, 100, 100);
+            g2.drawString(cursor, cursorX + gapBetweenBoxes * 2, cursorY);
+        }
+
+        // LEVEL SELECTOR TEXT
+
+        String levelHeader = "Select a level";
+        g2.setFont(g2.getFont().deriveFont(Font.BOLD, 64f));
+        g2.drawString(levelHeader, getXForCenteredText(levelHeader), gp.tileSize * 2);
+
+        //Draw each level Description; (Since there are only 3 levels, we are going to write each desc seperately)
+        String desc = "";
+        int descX = 0;
+        int descY = gp.tileSize * 5 + levelY;
+
+        if (levelCommandNum == 1)
+        {
+
+            deleteLvlDescription(desc, descX, descY - 20);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 28f));
+            desc = "FBLA Felix goes through the Fierce FBLA Forest \nin order to find the first piece" +
+                    " \nto unlock the Business Beacon";
+            descX = getXForCenteredText(desc) + gp.tileSize * 8;
+            drawLvlDescription(desc, descX, descY);
+        }
+        if (levelCommandNum == 2)
+        {
+
+            deleteLvlDescription(desc, descX, descY - 20);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 28f));
+            desc = "FBLA Felix is now on his way through \nCommission Cave to find the \nsecond piece to the Business Beacon";
+            descX = getXForCenteredText(desc) + gp.tileSize * 8;
+
+            drawLvlDescription(desc, descX, descY);
+        }
+        if (levelCommandNum == 3)
+        {
+
+            deleteLvlDescription(desc, descX, descY - 20);
+            g2.setFont(g2.getFont().deriveFont(Font.BOLD, 28f));
+            desc = "?????";
+            descX = getXForCenteredText(desc);
+
+            drawLvlDescription(desc, descX, descY);
+        }
 
     }
     public void drawGameOverScreen() {
@@ -446,6 +581,35 @@ public class UI {
         int textLength = (int)g2.getFontMetrics().getStringBounds(text, g2).getWidth();
         int x = tailX - textLength;
         return x;
+    }
+
+    public int getItemIndex()
+    {
+        int itemIndex = slotCol + slotRow*5;
+        return itemIndex;
+    }
+
+    public void drawLvlDescription(String description, int levelX, int levelY)
+    {
+        for(String line : description.split("\n")) {
+            g2.drawString(line, levelX, levelY);
+            levelY += 40;
+        }
+    }
+
+    public void deleteLvlDescription(String description, int descX, int descY)
+    {
+//        int descWidth = 0;
+//        int descHeight = description.split("\n").length * 45;
+//        int maxlinelength = 0;
+//        for(String line : description.split("\n")) {
+//            if (maxlinelength < line.length()) {
+//                maxlinelength = line.length();
+//            }
+//
+//        }
+//        descWidth = maxlinelength * g2.getFont().getSize() + 10;
+        g2.clearRect(descX, descY, 1000, 300);
     }
 
 }

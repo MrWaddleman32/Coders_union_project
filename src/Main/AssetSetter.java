@@ -2,10 +2,8 @@ package Main;
 
 import Entity.Entity;
 import Entity.NPC_OldMan;
-import Objects.OBJ_Chest;
-import Objects.OBJ_Door;
-import Objects.OBJ_Key;
-import Objects.OBJ_Scroll;
+import Objects.*;
+import Tile_Interactive.IT_Dry_Tree;
 
 public class AssetSetter {
 
@@ -17,7 +15,18 @@ public class AssetSetter {
     }
     public void setObject()
     {
-
+        int i = 0;
+        gp.obj[i] = new OBJ_Coin_Bronze(gp);
+        gp.obj[i].worldX = gp.tileSize * 27;
+        gp.obj[i].worldY = gp.tileSize * 21;
+        i++;
+        gp.obj[i] = new OBJ_Health_Potion(gp);
+        gp.obj[i].worldX = gp.tileSize * 22;
+        gp.obj[i].worldY = gp.tileSize * 27;
+        i++;
+        gp.obj[i] = new OBJ_Axe(gp);
+        gp.obj[i].worldX = gp.tileSize * 23;
+        gp.obj[i].worldY = gp.tileSize * 29;
     }
     public void setNPC()
     {
@@ -45,5 +54,16 @@ public class AssetSetter {
         i++;
 
 
+    }
+    public void setInteractiveTiles()
+    {
+        int i = 0;
+        gp.iTile[i] = new IT_Dry_Tree(gp,27,12);i++;
+        gp.iTile[i] = new IT_Dry_Tree(gp,28,12);i++;
+        gp.iTile[i] = new IT_Dry_Tree(gp,29,12);i++;
+        gp.iTile[i] = new IT_Dry_Tree(gp,30,12);i++;
+        gp.iTile[i] = new IT_Dry_Tree(gp,31,12);i++;
+        gp.iTile[i] = new IT_Dry_Tree(gp,32,12);i++;
+        gp.iTile[i] = new IT_Dry_Tree(gp,33,12);i++;
     }
 }

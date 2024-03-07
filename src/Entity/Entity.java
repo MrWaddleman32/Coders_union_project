@@ -15,7 +15,7 @@ public class Entity {
     GamePanel gp;
     public int worldX,worldY;
     public BufferedImage up1, up2, down1, down2, right1, right2, left1, left2, snowball;
-    public BufferedImage attackUp1, attackUp2, attackDown1, attackDown2, attackRight1, attackLeft1;
+    public BufferedImage attackUp1, attackUp2, attackDown1, attackDown2, attackRight1, attackRight2, attackLeft1, attackLeft2;
     public Rectangle attackHitBox =  new Rectangle(0,0,0,0);
     //COUNTER
 
@@ -51,6 +51,7 @@ public class Entity {
     public Projectile projectile;
 
     // ITEM ATTRIBUTES
+    public int value;
     public int attackValue;
     public int defenseValue;
     public String description = "";
@@ -72,6 +73,13 @@ public class Entity {
     public boolean collision;
     public boolean onPath = false;
     public int type; // 0 is player, 1 is npc, 2 is monster
+    public final int TYPE_PLAYER = 0;
+    public final int TYPE_NPC = 1;
+    public final int TYPE_MONSTER = 2;
+    public final int TYPE_SWORD = 3;
+    public final int TYPE_AXE = 4;
+    public final int TYPE_CONSUMABLE = 5;
+    public final int TYPE_PICKUPONLY = 6;
     public Entity(GamePanel gp)
     {
         this.gp = gp;
@@ -132,7 +140,7 @@ public class Entity {
                 hpBarCounter = 0;
                 changeAlpha(g2, 0.3F);
             }
-            g2.drawImage(image,screenX,screenY,gp.tileSize,gp.tileSize,null);
+            g2.drawImage(image,screenX,screenY,null);
             if (dying)
             {
                 dyingAnimation(g2);
@@ -157,7 +165,6 @@ public class Entity {
         if (dyingCounter > i*7 && dyingCounter <= i*8) {changeAlpha(g2, 1f);}
         if (dyingCounter > i*8)
         {
-            dying = false;
             alive = false;
         }
     }
@@ -208,7 +215,22 @@ public class Entity {
         }
     }
 
+    public void checkDrop()
+    {
 
+    }
+    public void dropItem(Entity droppedItem)
+    {
+        for (int i = 0; i < gp.obj.length; ++i)
+        {
+            if (gp.obj[i] == null){
+                gp.obj[i] = droppedItem;
+                gp.obj[i].worldX = worldX; // THE DEAD MONSTERS X
+                gp.obj[i].worldY = worldY; // THE DEAD MONSTERS Y
+                break;
+            }
+        }
+    }
 
     public void checkCollision() {
         collisionOn = false;
@@ -216,9 +238,10 @@ public class Entity {
         gp.cChecker.checkObject(this, false);
         gp.cChecker.checkEntity(this, gp.npc);
         gp.cChecker.checkEntity(this, gp.monster);
+        gp.cChecker.checkEntity(this, gp.iTile);
         boolean contactPlayer = gp.cChecker.checkPlayer(this);
 
-        if (this.type == 2 && contactPlayer)
+        if (this.type == TYPE_MONSTER && contactPlayer)
         {
             damagePlayer(attack);
         }
@@ -289,6 +312,39 @@ public class Entity {
             gp.player.life -= damage;
             gp.player.invincible = true;
         }
+    }
+    public Color getParticleColor()
+    {
+        Color color = null;
+        return color;
+    }
+    public int getParticleSize()
+    {
+        int size = 0;
+        return size;
+    }
+    public int getParticleSpeed()
+    {
+        int speed = 0;
+        return speed;
+    }
+    public int getMaxLife()
+    {
+        int maxLife = 0;
+        return maxLife;
+    }
+    public void generateParticle(Entity generator, Entity target)
+    {
+        Color color = generator.getParticleColor();
+        int size = generator.getParticleSize();
+        int speed = generator.getParticleSpeed();
+        int maxLife = generator.getMaxLife();
+
+        Particle p1 = new Particle(gp, target, color, size, speed, maxLife, -1, -1);
+        gp.particleList.add(p1);
+    }
+    protected void use(Entity entity) {
+
     }
 
 

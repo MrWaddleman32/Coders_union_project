@@ -1,6 +1,7 @@
 package Main;
 
 import Entity.Entity;
+import Tile.TileManager;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -8,6 +9,7 @@ import java.security.Key;
 
 public class KeyHandler implements KeyListener {
     GamePanel gp;
+    int songsPlayed = 0;
     public boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed, shotKeyPressed;
     public KeyHandler(GamePanel gp)
     {
@@ -55,6 +57,16 @@ public class KeyHandler implements KeyListener {
         {
             gameOverState(code);
         }
+        // LEVEL SELECTOR
+        else if (gp.gameState == gp.selectLevelState)
+        {
+            selectLevelState(code);
+        }
+        // LEVEL 1 PRE-SCENE
+        else if (gp.gameState == gp.lvl1PreSceneState)
+        {
+            lvl1PreSceneState(code);
+        }
 
 
 
@@ -75,8 +87,8 @@ public class KeyHandler implements KeyListener {
             if (code == KeyEvent.VK_ENTER) {
                 if (gp.ui.commandNum == 0) {
                     gp.ui.titleScreenState = 1;
-                    gp.gameState = gp.playState;
-                    gp.playMusic(0);
+                    gp.ui.g2.clearRect(0,0, gp.screenWidth2, gp.screenHeight2);
+                    gp.gameState = gp.selectLevelState;
                 }
                 if (gp.ui.commandNum == 1) {
                     // add later
@@ -171,6 +183,9 @@ public class KeyHandler implements KeyListener {
                 gp.playSE(9);
             }
         }
+        if (code == KeyEvent.VK_ENTER) {
+            gp.player.selectItem();
+        }
     }
     public void gameOverState(int code)
     {
@@ -203,6 +218,42 @@ public class KeyHandler implements KeyListener {
                 System.exit(0);
             }
         }
+    }
+    public void selectLevelState(int code)
+    {
+        if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT)
+        {
+            gp.ui.levelCommandNum++;
+            gp.playSE(9);
+            if (gp.ui.levelCommandNum > gp.ui.numOfLevels)
+            {
+                gp.ui.levelCommandNum = 1;
+            }
+        }
+        if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT)
+        {
+            gp.ui.levelCommandNum--;
+            gp.playSE(9);
+            if (gp.ui.levelCommandNum < 1)
+            {
+                gp.ui.levelCommandNum = gp.ui.numOfLevels;
+            }
+        }
+        if (code == KeyEvent.VK_ENTER && gp.ui.levelCommandNum == 1)
+        {
+            gp.gameState = gp.lvl1PreSceneState;
+            gp.player.worldX = gp.tileSize * 23;
+            gp.player.worldY = gp.tileSize * 20;
+        }
+        if (code == KeyEvent.VK_ENTER && gp.ui.levelCommandNum == 2)
+        {
+            gp.tileM.loadMap("/maps/indoor01.txt");
+            gp.gameState = gp.playState;
+        }
+    }
+    public void lvl1PreSceneState(int code)
+    {
+        
     }
 
     @Override

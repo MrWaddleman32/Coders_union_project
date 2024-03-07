@@ -1,6 +1,8 @@
 package Main;
 
 import Entity.Entity;
+import Objects.OBJ_Coin_Bronze;
+import Objects.OBJ_Heart;
 import Objects.OBJ_Snowball;
 
 import java.util.Random;
@@ -13,7 +15,7 @@ public class MON_Frostnapper extends Entity {
 
         this.gp = gp;
 
-        type = 2;
+        type = TYPE_MONSTER;
         name = "Frostnapper";
         speed = 2;
         attack = 5;
@@ -84,5 +86,17 @@ public class MON_Frostnapper extends Entity {
     {
         actionLockCounter = 0;
         direction = gp.player.direction;
+    }
+    public void checkDrop()
+    {
+        int i  = new Random().nextInt(100)+1;
+
+        // SET THE MONSTER DROP
+        if (i < 50){
+            dropItem(new OBJ_Coin_Bronze(gp));
+        }
+        else{
+            dropItem(new OBJ_Heart(gp));
+        }
     }
 }

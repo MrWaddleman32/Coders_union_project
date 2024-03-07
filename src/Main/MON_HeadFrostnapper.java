@@ -14,7 +14,7 @@ public class MON_HeadFrostnapper extends Entity {
 
         this.gp = gp;
 
-        type = 2;
+        type = TYPE_MONSTER;
         name = "Head Frostnapper";
         speed = 4;
         maxLife = 4;

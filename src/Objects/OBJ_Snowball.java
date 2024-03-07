@@ -26,11 +26,11 @@ public class OBJ_Snowball extends Projectile {
 
     public void getImage()
     {
-        up1 = setup("/projectiles/snowball",gp.tileSize,gp.tileSize);
-        up2 = setup("/projectiles/snowball",gp.tileSize,gp.tileSize);
-        down1 = setup("/projectiles/snowball",gp.tileSize,gp.tileSize);
-        down2 = setup("/projectiles/snowball",gp.tileSize,gp.tileSize);
-        left1 = setup("/projectiles/snowball",gp.tileSize,gp.tileSize);
-        right1 = setup("/projectiles/snowball",gp.tileSize,gp.tileSize);
+        up1 = setup("/projectiles/rock_down_1",gp.tileSize,gp.tileSize);
+        up2 = setup("/projectiles/rock_down_1",gp.tileSize,gp.tileSize);
+        down1 = setup("/projectiles/rock_down_1",gp.tileSize,gp.tileSize);
+        down2 = setup("/projectiles/rock_down_1",gp.tileSize,gp.tileSize);
+        left1 = setup("/projectiles/rock_down_1",gp.tileSize,gp.tileSize);
+        right1 = setup("/projectiles/rock_down_1",gp.tileSize,gp.tileSize);
     }
 }
