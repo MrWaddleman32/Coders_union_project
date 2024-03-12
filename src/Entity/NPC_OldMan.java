@@ -13,8 +13,10 @@ public class NPC_OldMan extends Entity{
         direction = "down";
         speed = 1;
 
+        dialogueSet = 0;
         getImage();
         setDialogues();
+
     }
 
     public void getImage()
@@ -30,29 +32,35 @@ public class NPC_OldMan extends Entity{
     }
     public void setDialogues()
     {
-        dialogues[0] = "Hello there chap";
-        dialogues[1] = "Our world under the rule of the \nFrostnappers, and you think you \ncan help us?";
-        dialogues[2] = "I used to be the hero of our world, \nbut I guess im a little too old \nfor that now aren't I?";
-        dialogues[3] = "Well the only way to defeat them is \nby finding the sacred scroll of \n'snowball fighting'.";
-        dialogues[4] = "Then you must get the keys and open the \ndoors to finally get rid of \nthe head Frostnapper";
-        dialogues[5] = "Good luck chap, may you save \nour land.";
+        dialogues[0][0] = "Wise Guru: Hello there chap";
+        dialogues[0][1] = "Wise Guru: Oh you look for the first piece to unlocking\nthe business beacon?";
+        dialogues[0][2] = "Wise Guru: Well I heard it was very well hidden within this forest\ninside a treasure chest";
+        dialogues[0][3] = "Wise Guru: Some of these trees look a little weird, I think they can be \ncut down with an axe";
+        dialogues[0][4] = "Wise Guru: If you ever get too tired, try drinking some water \nat my garden";
+
+        dialogues[1][0] = "Wise Guru: Wow you found the first piece to the \nbusiness beacon?";
+        dialogues[1][1] ="Wise Guru: Well now you must go into the deep dark\nCommission Cave by walking down those stairs over there.";
+        dialogues[1][2] = "Wise Guru: In there you will have to solve a \nRiddle to get the second piece.";
+        dialogues[1][3] = "Wise Guru: I cannot join you because I have been banished\nfor trying to get the second piece too many times.";
+        dialogues[1][3] = "Wise Guru: Well good luck to you Felix.";
+
     }
 
     public void setAction()
     {
-        if (onPath)
-        {
+//        if (onPath)
+//        {
 //            int goalCol = (gp.player.worldX + gp.player.hitbox.x)/gp.tileSize;
 //            int goalRow = (gp.player.worldY + gp.player.hitbox.y)/gp.tileSize;
 //
 //            searchPath(goalCol,goalRow);
-        }
-        else {
+//        }
+//        else {
             actionLockCounter++;
-
+//
             if(actionLockCounter == 120) {
-
-
+//
+//
                 Random random = new Random();
                 int i = random.nextInt(100) + 1; // PICKS A RANDOM NUM FROM 1 TO 100
                 if (i <= 25) {
@@ -69,11 +77,18 @@ public class NPC_OldMan extends Entity{
                 }
                 actionLockCounter = 0;
             }
-        }
-
+//        }
+//
     }
     public void speak() {
-        super.speak();
+
+        facePlayer();
+        startDialogue(this, dialogueSet);
+        dialogueSet++;
+
+        if (dialogues[dialogueSet][0] == null){
+            dialogueSet = 0;
+        }
 
 //        onPath = true;
     }

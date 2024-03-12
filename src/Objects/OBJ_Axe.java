@@ -15,7 +15,7 @@ public class OBJ_Axe extends Entity {
         attackValue = 4;
         description = "An ancient axe that\n was used by the KPI Kings.";
         attackHitBox.width = 30;
-        attackHitBox.height = 36;
+        attackHitBox.height = 30;
 
     }
 }

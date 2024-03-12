@@ -1,8 +1,10 @@
 package Entity;
 
+
 import Main.GamePanel;
 import Main.KeyHandler;
 import Main.UtilityTool;
+
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -10,7 +12,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+
 public class Entity {
+
 
     GamePanel gp;
     public int worldX,worldY;
@@ -20,16 +24,22 @@ public class Entity {
     //COUNTER
 
 
+
+
     //STATE
+
 
     public String direction = "down";
 
+
     public int spriteCounter = 0;
     public int spriteNum = 1;
-    boolean attacking = false;
+    public boolean attacking = false;
     public boolean alive = false;
     public boolean dying = false;
     boolean hpBarOn = false;
+
+
 
     // CHARACTER ATTRIBUTES
     public String name;
@@ -49,8 +59,13 @@ public class Entity {
     public Entity currentWeapon;
     public Entity currentShield;
     public Projectile projectile;
+    public Entity currentLight;
+
 
     // ITEM ATTRIBUTES
+
+    public boolean stackable = false;
+    public int amount = 1;
     public int value;
     public int attackValue;
     public int defenseValue;
@@ -60,17 +75,21 @@ public class Entity {
     public int hitboxDefaultX, hitboxDefaultY;
     public boolean collisionOn = false;
     public boolean invincible = false;
+    public boolean drawing = true;
+    public int lightRadius;
     // COUNTERS
     public int invincibleCounter = 0;
     public int shotAvailableCounter = 0;
     public int dyingCounter = 0;
     public int actionLockCounter;
     public int hpBarCounter = 0;
-    public String dialogues[] = new String[20];
+    public String dialogues[][] = new String[20][20];
+    public int dialogueSet = 0;
     public int dialogueIndex = 0;
     public int type_PickUpOnly = 0;
     public BufferedImage image, image2, image3;
     public boolean collision;
+    public boolean sleep = false;
     public boolean onPath = false;
     public int type; // 0 is player, 1 is npc, 2 is monster
     public final int TYPE_PLAYER = 0;
@@ -80,10 +99,15 @@ public class Entity {
     public final int TYPE_AXE = 4;
     public final int TYPE_CONSUMABLE = 5;
     public final int TYPE_PICKUPONLY = 6;
+    public final int TYPE_OBSTACLE = 7;
+    public final int TYPE_LIGHT = 8;
+    public final int TYPE_PICKAXE = 9;
     public Entity(GamePanel gp)
     {
         this.gp = gp;
     }
+
+
 
 
     public void draw(Graphics2D g2) {
@@ -116,6 +140,8 @@ public class Entity {
             }
 
 
+
+
             // HEALTH BAR
             if (type == 2 && hpBarOn)
             {
@@ -134,6 +160,8 @@ public class Entity {
             }
 
 
+
+
             if (invincible)
             {
                 hpBarOn = true;
@@ -146,9 +174,13 @@ public class Entity {
                 dyingAnimation(g2);
             }
 
+
             changeAlpha(g2,1F);
 
+
         }
+
+
 
 
     }
@@ -175,6 +207,7 @@ public class Entity {
         UtilityTool uTool = new UtilityTool();
         BufferedImage image = null;
 
+
         try
         {
             image = ImageIO.read(getClass().getResourceAsStream(imagePath + ".png"));
@@ -187,16 +220,16 @@ public class Entity {
     }
 
 
-
     public void setAction() { }
     public void damageReaction(){}
     public void speak() {
-        if (dialogues[dialogueIndex] == null)
-        {
-            dialogueIndex = 0;
-        }
-        gp.ui.currentDialogue = dialogues[dialogueIndex];
-        dialogueIndex++;
+
+
+    }
+    public void interact(){}
+
+    public void facePlayer()
+    {
         switch(gp.player.direction)
         {
             case "up":
@@ -212,25 +245,34 @@ public class Entity {
                 direction = "left";
                 break;
 
+
         }
     }
+    public void startDialogue(Entity entity, int setNum){
+        gp.gameState = gp.dialogueState;
+        gp.ui.npc = entity;
+        dialogueSet = setNum;
+    }
+
 
     public void checkDrop()
     {
 
+
     }
     public void dropItem(Entity droppedItem)
     {
-        for (int i = 0; i < gp.obj.length; ++i)
+        for (int i = 0; i < gp.obj[1].length; ++i)
         {
-            if (gp.obj[i] == null){
-                gp.obj[i] = droppedItem;
-                gp.obj[i].worldX = worldX; // THE DEAD MONSTERS X
-                gp.obj[i].worldY = worldY; // THE DEAD MONSTERS Y
+            if (gp.obj[gp.currentMap][i] == null){
+                gp.obj[gp.currentMap][i] = droppedItem;
+                gp.obj[gp.currentMap][i].worldX = worldX; // THE DEAD MONSTERS X
+                gp.obj[gp.currentMap][i].worldY = worldY; // THE DEAD MONSTERS Y
                 break;
             }
         }
     }
+
 
     public void checkCollision() {
         collisionOn = false;
@@ -241,69 +283,76 @@ public class Entity {
         gp.cChecker.checkEntity(this, gp.iTile);
         boolean contactPlayer = gp.cChecker.checkPlayer(this);
 
+
         if (this.type == TYPE_MONSTER && contactPlayer)
         {
             damagePlayer(attack);
         }
     }
     public void update() {
+
         setAction();
         checkCollision();
-
-        if (!collisionOn)
+        if (sleep == false)
         {
-            switch(direction)
+
+            if (!collisionOn)
             {
-                case "up":
-                    worldY -= speed;
-                    break;
-                case "down":
-                    worldY += speed;
-                    break;
-                case "left":
-                    worldX -= speed;
-                    break;
-                case "right":
-                    worldX += speed;
-                    break;
+                switch(direction)
+                {
+                    case "up":
+                        worldY -= speed;
+                        break;
+                    case "down":
+                        worldY += speed;
+                        break;
+                    case "left":
+                        worldX -= speed;
+                        break;
+                    case "right":
+                        worldX += speed;
+                        break;
+                }
+
+
             }
 
+
+            spriteCounter++;
+            if(spriteCounter > 12){
+                if(spriteNum == 1)
+                {
+                    spriteNum = 2;
+                }
+                else if (spriteNum ==2)
+                {
+                    spriteNum = 1;
+                }
+                spriteCounter = 0;
+            }
+            if(invincible)
+            {
+                invincibleCounter++;
+                if (invincibleCounter > 40)
+                {
+                    invincible = false;
+                    invincibleCounter = 0;
+                }
+            }
+            if(shotAvailableCounter <  30)
+            {
+                shotAvailableCounter++;
+            }
         }
 
 
-
-
-        spriteCounter++;
-        if(spriteCounter > 12){
-            if(spriteNum == 1)
-            {
-                spriteNum = 2;
-            }
-            else if (spriteNum ==2)
-            {
-                spriteNum = 1;
-            }
-            spriteCounter = 0;
-        }
-        if(invincible)
-        {
-            invincibleCounter++;
-            if (invincibleCounter > 40)
-            {
-                invincible = false;
-                invincibleCounter = 0;
-            }
-        }
-        if(shotAvailableCounter <  30)
-        {
-            shotAvailableCounter++;
-        }
 
     }
     public void damagePlayer(int attack) {
         if (!(gp.player.invincible))
         {
             gp.playSE(6);
+
 
             int damage = attack - gp.player.defense;
             if (damage < 0){
@@ -340,12 +389,16 @@ public class Entity {
         int speed = generator.getParticleSpeed();
         int maxLife = generator.getMaxLife();
 
+
         Particle p1 = new Particle(gp, target, color, size, speed, maxLife, -1, -1);
         gp.particleList.add(p1);
     }
     protected void use(Entity entity) {
 
+
     }
+
+
 
 
 //    public void searchPath(int goalCol, int goalRow)
@@ -433,5 +486,6 @@ public class Entity {
 //            }
 //        }
 //    }
+
 
 }

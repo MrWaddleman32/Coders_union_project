@@ -16,7 +16,7 @@ public class MON_Frostnapper extends Entity {
         this.gp = gp;
 
         type = TYPE_MONSTER;
-        name = "Frostnapper";
+        name = "Inflatiosaur";
         speed = 2;
         attack = 5;
         defense = 0;
@@ -45,6 +45,7 @@ public class MON_Frostnapper extends Entity {
         left1 = setup("/monster/fs_left",gp.tileSize ,gp.tileSize);
         right1 = setup("/monster/fs_right",gp.tileSize,gp.tileSize);
     }
+
 
     public void setAction()
     {

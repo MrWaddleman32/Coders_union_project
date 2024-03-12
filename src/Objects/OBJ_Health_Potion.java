@@ -16,12 +16,15 @@ public class OBJ_Health_Potion extends Entity {
         down1 = setup("/objects/potion_red", gp.tileSize, gp.tileSize);
         description = "Healing potion \n Heals your health by " + value;
 
-
+        setDialogue();
+    }
+    public void setDialogue()
+    {
+        dialogues[0][0] = "You drink the " + name + "!\nYour life has been recovered by " + value;
     }
     public void use(Entity entity)
     {
-        gp.gameState = gp.dialogueState;
-        gp.ui.currentDialogue = "You drink the " + name + "!\nYour life has been recovered by " + value;
+        startDialogue(this,0);
         entity.life += value;
         gp.playSE(2);
     }
